@@ -1,13 +1,10 @@
 package com.guru.composecookbook.ui.demoui.gmail
 
-import androidx.compose.foundation.Icon
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumnForIndexed
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -35,42 +32,47 @@ import kotlin.math.absoluteValue
 fun GmailHome() {
 
     val scaffoldState = rememberScaffoldState()
-    val lazyListState = rememberLazyListState()
+    val scrollState = rememberScrollState()
+    val expandFAB = remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Search in emails", style = typography.body2) },
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = MaterialTheme.colors.onSurface,
-                elevation = 8.dp,
-                navigationIcon = {
-                    IconButton(onClick = { scaffoldState.drawerState.open() }) {
-                        Icon(asset = Icons.Outlined.Menu)
-                    }
-                },
-                actions = {
-                    Image(
-                        asset = imageResource(id = R.drawable.p3),
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                            .preferredSize(32.dp).clip(CircleShape)
-                    )
-                }
-            )
-        },
+
         floatingActionButton = {
-            val rippleExplode = remember { mutableStateOf(false) }
-            GmailFloatingActionButton(rippleExplode, lazyListState)
-            if (rippleExplode.value) {
-                FloatMultiStateAnimationExplode(duration = 300)
+            FloatingActionButton(
+                onClick = {
+
+                },
+                modifier = Modifier
+                    .padding(16.dp)
+                    .preferredHeight(48.dp)
+                    .widthIn(min = 48.dp),
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.primary
+            ) {
+                AnimatingFabContent(
+                    icon = {
+                        androidx.compose.material.Icon(
+                            asset = Icons.Outlined.Edit
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "Compose",
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                    },
+                    extended = expandFAB.value
+
+                )
             }
+
         },
         drawerContent = { GmailDrawer() },
         drawerBackgroundColor = MaterialTheme.colors.background,
         drawerContentColor = MaterialTheme.colors.onBackground,
         scaffoldState = scaffoldState,
         bodyContent = {
-            GmailContent(lazyListState)
+            GmailContent(scrollState, scaffoldState.drawerState, expandFAB)
         }
     )
 }
@@ -93,19 +95,9 @@ fun GmailFloatingActionButton(rippleExplode: MutableState<Boolean>, lazyListStat
         isExpanded.value = true
 
     } else if (oldIndex.value < lazyListState.firstVisibleItemIndex && isVisibleScrolled) {
-
         println("scroll up")
         isExpanded.value = false
-
     }
-
-//    else if (oldIndex.value == lazyListState.firstVisibleItemIndex && isVisibleScrolled) {
-//        if (oldOffset.value > lazyListState.firstVisibleItemScrollOffset) {
-//            println("scroll down small")
-//        } else {
-//            println("scroll up small")
-//        }
-//    }
 
     if (!lazyListState.isAnimationRunning) {
         oldOffset.value = lazyListState.firstVisibleItemScrollOffset
@@ -113,43 +105,42 @@ fun GmailFloatingActionButton(rippleExplode: MutableState<Boolean>, lazyListStat
     }
 
 
-    FloatingActionButton(
-        onClick = {
-            rippleExplode.value = !rippleExplode.value
-        },
-        modifier = Modifier
-            .padding(16.dp)
-            .preferredHeight(48.dp)
-            .widthIn(min = 48.dp),
-        backgroundColor = MaterialTheme.colors.surface,
-        contentColor = MaterialTheme.colors.primary
-    ) {
-        AnimatingFabContent(
-            icon = {
-                androidx.compose.material.Icon(
-                    asset = Icons.Outlined.Edit
-                )
-            },
-            text = {
-                Text(
-                    text = "Compose",
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            },
-            extended = isExpanded.value
-
-        )
-    }
-
-
 }
 
 @Composable
-fun GmailContent(lazyListState: LazyListState) {
+fun GmailContent(
+    scrollState: ScrollState,
+    drawerState: DrawerState,
+    expandFAB: MutableState<Boolean>
+) {
 
     val tweets = remember { DemoDataProvider.tweetList }
-    LazyColumnFor(items = tweets, state = lazyListState) { item ->
-        GmailListItem(item)
+
+    Box {
+
+
+        ScrollableColumn(
+            modifier = Modifier,
+            scrollState = scrollState,
+
+            ) {
+
+            Spacer(modifier = Modifier.preferredHeight(72.dp))
+
+            for (i in tweets) {
+                GmailListItem(item = i)
+            }
+
+        }
+
+        SearchLayout(
+            scroll = scrollState.value,
+            expandFAB,
+            drawerState = drawerState
+        )
+
+
     }
+
 
 }
