@@ -7,14 +7,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Call
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -67,6 +71,31 @@ fun GmailHome(navController: NavHostController) {
         scaffoldState = scaffoldState,
         bodyContent = {
             GmailContent(fabExpandState, scaffoldState,navController)
+        },
+        bottomBar = {
+            BottomNavigation(
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.onSurface
+            ) {
+                BottomNavigationItem(
+                    icon = { Icon(asset = Icons.Outlined.MailOutline,tint = MaterialTheme.colors.primary) },
+
+                    onClick = {
+                    },
+                    selected = true,
+                    label = { Text("Mail") },
+                    alwaysShowLabels = true
+                )
+
+                BottomNavigationItem(
+                    icon = { Icon(asset = Icons.Outlined.Call) },
+                    selected = true,
+                    onClick = {},
+                    label = { Text("Meet") },
+                    alwaysShowLabels = true
+                )
+
+            }
         }
     )
 }
@@ -177,6 +206,10 @@ fun GmailContent(
                 }
             }
 
+            item {
+                Spacer(modifier = Modifier.preferredHeight(72.dp))
+            }
+            
         }
 
 
@@ -184,5 +217,25 @@ fun GmailContent(
 
 
     }
+}
+
+@Composable
+fun AccountDialog() {
+
+    Dialog(onDismissRequest = { }) {
+
+        Column {
+
+            Row {
+                IconButton(onClick = {}) {
+
+                }
+            }
+
+        }
+
+
+    }
+
 }
 
